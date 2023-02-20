@@ -1,0 +1,42 @@
+     **
+     dDs_cltes1        ds                  Inz Qualified
+     d idcustomer                     9  0
+     d identcode                     15
+     d firstname                     30
+     d surname                       30
+     d status                         1
+     **
+     dDs_cltes2        ds                  Inz Qualified
+     d idcustomer                     9  0
+     d identcode                     15
+     d firstname                     30
+     d surname                       30
+     d maritalstatus                  1
+     d birthday                        z
+     d fnrelationtype                 1
+     d fncompanyname                100
+     d fncompanyaddr                100
+     d fncompanynmbr                 15
+     d fnposition                     4
+     d fnsalary                      14  2
+     d fnworkstdt                      z
+     d status                         1
+     d crtdate                         z
+     d crtuser                       10
+     d crtwrks                       10
+     **
+     dDs_cltes3        ds                  Inz Qualified
+     d idcustomer                     9  0
+     d relnumber                      9  0
+     d reltype                        4
+     d relidcust                      9  0
+     d relicode                      15
+     d relfname                      30
+     d relsname                      30
+     **
+     dDs_cltes4        ds                  Inz Qualified
+     d idcustomer                     9  0
+     d identcode                     15
+     d firstname                     30
+     d surname                       30
+     **

@@ -1,0 +1,33 @@
+      create table R0007 (
+         idDoc int not null,
+         docLine smallint not null,
+         idProduct varchar(9) not null,
+         descr varchar(100) not null,
+         price decimal(14,2) not null,
+         qty decimal(6,0) not null,
+         amtLine decimal(14,2) not null,
+         prcTax decimal(5,2) not null,
+         amtTax decimal(14,2) not null,
+         amtSubtotal decimal(14,2) not null,
+         primary key(idDoc, docLine),
+         foreign key(idDoc)
+                 references R0006(idDoc)
+                 on update restrict
+                 on delete restrict,
+         foreign key(idProduct)
+                 references R0005(idProduct)
+                 on update restrict
+                 on delete restrict
+      );
+      label on column R0007 (
+         idDoc text is 'Document Number',
+         docLine text is 'Document Line',
+         idProduct text is 'Product Code',
+         descr text is 'Product Description',
+         price  text is 'Unit Price',
+         qty  text is 'Quantity',
+         amtLine text is 'Amount Line',
+         prcTax text is 'Percentage Tax',
+         amtTax text is 'Amount Tax',
+         amtSubtotal text is 'Amount Subtotal'
+      );

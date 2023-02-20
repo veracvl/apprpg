@@ -1,0 +1,77 @@
+-- AUTOR: CARLOS VERA LEON
+-- FECHA: 2023/01/17
+-- OBJETIVO: PROCESAR MANTENIMIENTO DE R0001-CLIENTES
+
+CREATE OR REPLACE PROCEDURE PRC001(In p_idcustomer INTEGER,
+                        In p_identcode VARCHAR(15),
+                        In p_firstname VARCHAR(30),
+                        In p_surname VARCHAR(30),
+                        In p_maritalstatus CHAR(1),
+                        In p_birthday VARCHAR(8),
+                        In p_fnrelationtype CHAR(1),
+                        In p_fnCompanyName VARCHAR(100),
+                        In p_fnCompanyAddr VARCHAR(100),
+                        In p_fnCompanyNmbr VARCHAR(15),
+                        In p_fnPosition VARCHAR(4),
+                        In p_fnSalary DECIMAL(14,2),
+                        In p_fnWorkStdt VARCHAR(8),
+                        In p_status CHAR(1),
+                        In p_crtuser VARCHAR(10),
+                        In p_crtwrks VARCHAR(10),
+                        In p_action CHAR(1),
+                        InOut p_ret VARCHAR(5),
+                        InOut p_msg VARCHAR(100))
+LANGUAGE SQL
+SET OPTION COMMIT = *NONE
+BEGIN
+  DECLARE w_crtdate TIMESTAMP;
+  DECLARE w_birthdt TIMESTAMP;
+  DECLARE w_workdt TIMESTAMP;
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+     Set p_ret = SQLSTATE;
+     Return;
+  END;
+
+  If p_action <>'D' Then
+    SET w_crtdate = current_timestamp;
+    SET w_birthdt = timestamp_format(p_birthday, 'YYYYMMDD');
+    SET w_workdt  = timestamp_format(p_fnWorkStdt, 'YYYYMMDD');
+  End If;
+
+  -- Si acción es insertar
+  If p_action = 'I' Then
+    Insert Into R0001(idcustomer, identcode, firstname, surname,
+                      maritalstatus, birthday, fnrelationtype,
+                      fncompanyname, fncompanyaddr, fncompanynmbr,
+                      fnposition, fnsalary, fnworkstdt, status,
+                      crtdate, crtuser, crtwrks)
+               Values(p_idcustomer, p_identcode, p_firstname, p_surname,
+                      p_maritalstatus, w_birthdt, p_fnrelationtype,
+                      p_fncompanyname, p_fncompanyaddr, p_fncompanynmbr,
+                      p_fnposition, p_fnsalary, w_workdt, p_status,
+                      w_crtdate, p_crtuser, p_crtwrks);
+
+  ElseIf p_action = 'D' Then
+  -- Si acción es eliminar
+    Delete R0001 Where idcustomer = p_idcustomer;
+
+  ElseIf p_action = 'U' Then
+  -- Si acción es actualizar
+    Update R0001
+    Set identcode      = p_identcode,
+        firstname      = p_firstname,
+        surname        = p_surname,
+        maritalstatus  = p_maritalstatus,
+        birthday       = w_birthdt,
+        fnrelationtype = p_fnrelationtype,
+        fnCompanyName  = p_fnCompanyName,
+        fnCompanyAddr  = p_fnCompanyAddr,
+        fnCompanyNmbr  = p_fnCompanyNmbr,
+        fnPosition     = p_fnPosition,
+        fnSalary       = p_fnSalary,
+        fnWorkStdt     = w_workdt,
+        status         = p_status
+    Where idcustomer = p_idcustomer;
+  End If;
+END

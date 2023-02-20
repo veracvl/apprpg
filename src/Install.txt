@@ -1,0 +1,63 @@
+1. Crear libreria XYZ
+2. Crear archivo de miembros
+	CRTSRCPF FILE(XYZ/QRPGLESRC) RCDLEN(110) 
+	CRTSRCPF FILE(XYZ/QDDSSRC) RCDLEN(110) 
+	CRTSRCPF FILE(XYZ/QCLSRC) RCDLEN(110) 
+	CRTSRCPF FILE(XYZ/QCPYSRC) RCDLEN(110) 
+	CRTSRCPF FILE(XYZ/QTXTSRC) RCDLEN(110) 
+
+3. Copiar miembros adjuntos en archivo
+4. Ejecutar
+	CHGCURLIB XYZ
+5. Crear tablas
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0000) +
+        	COMMIT(*NONE)                         
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0001) +
+             	COMMIT(*NONE)                         
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0004) +
+             	COMMIT(*NONE)                         
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0005) +
+             	COMMIT(*NONE)                         
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0006) +
+             	COMMIT(*NONE)                         
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0007) +
+             	COMMIT(*NONE)                         
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(R0010) +
+             	COMMIT(*NONE)   
+
+6. Crear Procedimientos
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(PRC001)
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(PRC004)
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(PRC005)
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(PRC006)
+	RUNSQLSTM  SRCFILE(*CURLIB/QTXTSRC) SRCMBR(PRC007)
+
+7. Compilar pantallas de XYZ/QDDSSRC
+8. Compilar MSGDLY de XYZ/QCLSRC
+9. Compilar el MOD000 de XYZ/QRPGLESRC
+	a. Con opción 15 y commit = *NONE
+10. CRTSRVPGM SRVPGM(MOD000) EXPORT(*ALL)
+11. Compilar el PGM001, PGM005, PGM006 de XYZ/QRPGLESRC
+	a. Con opción 15 y commit = *NONE
+12. Ejecutar
+	a. CRTPGM PGM(PGM001) BNDSRVPGM((MOD000))
+	b. CRTPGM PGM(PGM005) BNDSRVPGM((MOD000))
+	c. CRTPGM PGM(PGM006) BNDSRVPGM((MOD000))
+13. Ejecutar
+	a. CRTMSGF MSGF(DTAMSG)
+14. Ejecutar
+	a. ADDMSGD MSGID(ID00001) MSGF(DTAMSG) MSG('Valores no válidos para entrada de campo') SECLVL('Valores no válidos para entrada de campo')
+	b. ADDMSGD MSGID(ID00002) MSGF(DTAMSG) MSG('Registro ha sido eliminado.') SECLVL('Registro ha sido eliminado.')
+	c. ADDMSGD MSGID(ID00003) MSGF(DTAMSG) MSG('Registro ha sido actualizado.') SECLVL('Registro ha sido actualizado.')
+	d. ADDMSGD MSGID(ID00004) MSGF(DTAMSG) MSG('&1') SECLVL('&1') FMT((*CHAR 10))
+
+15. Abrir STRSQL y ejecutar:
+	a. insert into R0000 values(1, 'TIENDAS INDUSTRIALES ASOCIADAS TIA S.A.', 0.12)
+	b. insert into R0010 values('0010', 0)
+	c. insert into R0010 values('0011', 0)
+	d. insert into R0010 values('0012', 0)
+
+EJECUTAR
+CALL PGM001 - Mantenimiento de Clientes
+CALL PGM005 - Mantenimiento de Productos
+CALL PGM006 - Transacción de Venta

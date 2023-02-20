@@ -1,0 +1,140 @@
+     A*%%TS  SD  20230219  232929  DAASESDIG   REL-V7R4M0  5770-WDS
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A          R R000601                   SFL
+     A*%%TS  SD  20230219  224210  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            FLDCUS         9Y 0O  8  2EDTCDE(4)
+     A            FLDNOM        25   O  8 12
+     A            FLDFEC         8  0O  8 49EDTWRD('    /  /  ')
+     A            FLDTOT        14Y 2O  8 63EDTWRD('   ,   ,   ,   .  ')
+     A            FLDSTS         1A  O  8 60
+     A            FLDNBR         9S 0O  8 38
+     A          R R000601C                  SFLCTL(R000601)
+     A*%%TS  SD  20230219  162857  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      SFLSIZ(0010)
+     A                                      SFLPAG(0010)
+     A                                      CF03(03)
+     A                                      CF06(06)
+     A                                      OVERLAY
+     A                                      SFLCSRRRN(&CSRRRN)
+     A  51                                  SFLDSP
+     A  52                                  SFLDSPCTL
+     A  53                                  SFLCLR
+     A  54                                  SFLEND(*MORE)
+     A            CSRRRN         5S 0H
+     A                                  7  2'Código'
+     A                                      COLOR(WHT)
+     A                                  7 12'Nombre Cliente'
+     A                                      COLOR(WHT)
+     A                                  7 49'Fecha'
+     A                                      COLOR(WHT)
+     A                                  7 59'Sts.'
+     A                                      COLOR(WHT)
+     A                                  7 72'US$ Total'
+     A                                      COLOR(WHT)
+     A                                  7 36'Nro.Factura'
+     A                                      COLOR(WHT)
+     A          R R000602                   SFL
+     A*%%TS  SD  20230219  232929  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            FLDID          9A  B  9  4
+     A            FLDLIN         3  0H
+     A            FLDDES        25A  O  9 14
+     A            FLDCAN         4Y 0B  9 57EDTCDE(4)
+     A            FLDPRE        10Y 2O  9 42EDTWRD('  ,   ,   .  ')
+     A            FLDSUB        14Y 2B  9 63EDTWRD('   ,   ,   ,   .  ')
+     A            FLDIMP        14S 2H
+     A            FLDTOT        14S 2H
+     A          R R000602C                  SFLCTL(R000602)
+     A*%%TS  SD  20230219  213933  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF07(07)
+     A                                      CF10(10)
+     A                                      CF12(12)
+     A  70                                  CSRLOC(LINNBR     POSNBR)
+     A                                      OVERLAY
+     A                                      SFLCSRRRN(&CSRRRN)
+     A  51                                  SFLDSP
+     A  52                                  SFLDSPCTL
+     A  53                                  SFLCLR
+     A  54                                  SFLEND(*MORE)
+     A                                      SFLSIZ(0050)
+     A                                      SFLPAG(0008)
+     A            CSRRRN         5S 0H
+     A                                  5  4'Cliente'
+     A            IDCUSTOMER     9Y 0B  5 12EDTCDE(4)
+     A            FULLNAME      30A  O  5 23COLOR(BLU)
+     A                                  6  4'Fecha'
+     A            INVFEC         8Y 0B  6 12EDTWRD('    /  /  ')
+     A                                      EDTMSK('    &  &  ')
+     A                                  6 56'Estado'
+     A            OSTS          10A  O  6 67COLOR(RED)
+     A                                  5 56'#Factura'
+     A                                  8 14'Descripción'
+     A                                      COLOR(WHT)
+     A                                  8  4'Producto'
+     A                                      COLOR(WHT)
+     A                                  8 45'US$ Precio'
+     A                                      COLOR(WHT)
+     A                                  8 57'Cant.'
+     A                                      COLOR(WHT)
+     A                                  8 69'US$ SubTotal'
+     A                                      COLOR(WHT)
+     A            LINNBR         3S 0H
+     A            POSNBR         3S 0H
+     A                                  6 24'Doc.Interno'
+     A            IDDOC          9Y 0O  6 36EDTCDE(4)
+     A            STATUS         1A  O  6 65COLOR(RED)
+     A            INVNUM         9S 0O  5 69COLOR(RED)
+     A                                  5 65'FC-'
+     A                                      COLOR(RED)
+     A                                  7 42'F10=Nueva Línea'
+     A                                      COLOR(BLU)
+     A          R R000603
+     A*%%TS  SD  20230219  131417  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      OVERLAY
+     A                                 21  4'F3=Salir'
+     A                                      COLOR(BLU)
+     A                                 21 16'F6=Crear Factura'
+     A                                      COLOR(BLU)
+     A          R R000604
+     A*%%TS  SD  20230219  131417  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            ONAME         30A  O  1  2
+     A                                  1 71USER
+     A                                  2 73DATE
+     A                                      EDTCDE(Y)
+     A                                  3 73TIME
+     A            OTITLE        50A  O  2  2
+     A                                  4  2'__________________________________-
+     A                                      ___________________________________-
+     A                                      __________'
+     A                                      COLOR(WHT)
+     A          R R000605
+     A*%%TS  SD  20230219  160503  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      OVERLAY
+     A                                 21  4'F7=Generar Factura'
+     A                                      COLOR(BLU)
+     A                                 18 51'SubTotal '
+     A                                      COLOR(TRQ)
+     A                                 19 51'Impuestos'
+     A                                      COLOR(TRQ)
+     A                                 20 51'Total    '
+     A                                      COLOR(TRQ)
+     A            AMTBTAX       14Y 2O 18 63EDTWRD('   ,   ,   ,   .  ')
+     A                                      COLOR(TRQ)
+     A            AMTTAX        14Y 2O 19 63EDTWRD('   ,   ,   ,   .  ')
+     A                                      COLOR(TRQ)
+     A            AMTTOTAL      14Y 2O 20 63EDTWRD('   ,   ,   ,   .  ')
+     A                                      COLOR(TRQ)
+     A                                 21 26'F12=Cancelar'
+     A                                      COLOR(BLU)
+     A          R RGENERAR
+     A*%%TS  SD  20230219  131417  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF07(07)
+     A                                      CF12(12)
+     A                                      OVERLAY
+     A                                      WINDOW(16 10 4 50)
+     A                                  2  1'¿ Está seguro(a) de guardar y gene-
+     A                                      rar la factura ?'
+     A                                  3  3'F7=Generar Factura'
+     A                                      COLOR(BLU)
+     A                                  3 25'F12=Cancelar'
+     A                                      COLOR(BLU)

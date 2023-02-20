@@ -1,0 +1,254 @@
+     h debug(*yes)
+       // Autor    : Carlos Vera L.
+       // Fecha    : 2023/01/16
+       // Programa : Mantenimiento de productos
+
+       // Files
+       Dcl-f S0002 WorkStn(*Ext) sfile(R000202:rrn);
+
+       // Variables
+       Dcl-s rrn    packed(5:0);
+       Dcl-s descr  varchar(100);
+       Dcl-s action char(1);
+       Dcl-s errid  char(10);
+       Dcl-s dly    char(1);
+       Dcl-s errmsg char(50);
+       Dcl-s ret    varchar(5);
+       Dcl-s msg    varchar(100);
+     d                sds
+     d  job                  244    253
+     d  usr                  254    263
+
+      /copy *libl/qcpysrc,DS0000
+      /copy *libl/qcpysrc,DS0005
+      /copy *libl/qcpysrc,PROTOTYPES
+
+       Ds_data = getCompany();
+       oname = Ds_data.companyName;
+       otitle= 'MANTENIMIENTO DE PRODUCTOS';
+       Exsr srIniciar;
+
+       DoW *in03 = '0';
+         Exsr srPresentar;
+         If *in06 = '1';
+           Exsr srCrear;
+           Exsr srIniciar;
+         EndIf;
+       Enddo;
+
+      // Fin
+       *Inlr = '1';
+
+       //------------------------------------------------------------------
+       // Subrutina de Iniciar Subfile
+       //------------------------------------------------------------------
+       Begsr srIniciar;
+         Exsr srLimpiar;
+         Exsr srCargar;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Limpiar subfiles
+       //------------------------------------------------------------------
+       Begsr srLimpiar;
+         *in51 = '0';
+         *in52 = '0';
+         *in53 = '1';
+         *in54 = '0';
+         rrn   = 0;
+         Write R000202C;
+         *in53 = '0';
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Cargar
+       //------------------------------------------------------------------
+       Begsr srCargar;
+         exec sql declare c_leeprds cursor for
+                  select idproduct, sname, descr, price, status,
+                         crtdate, crtuser, crtwrks
+                  from r0005;
+         exec sql open c_leeprds;
+         exec sql fetch next from c_leeprds into :Ds_product;
+
+         Dow sqlstate = '00000';
+           rrn += 1;
+           fldid  = Ds_product.idproduct;
+           fldnam = Ds_product.sname;
+           fldpri = Ds_product.price;
+           fldsts = Ds_product.status;
+           Write R000202;
+           exec sql fetch next from c_leeprds into :Ds_product;
+         Enddo;
+         exec sql close c_leeprds;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina para presentar subfile
+       //------------------------------------------------------------------
+       Begsr srPresentar;
+         *in51 = '1';
+         *in52 = '1';
+         If rrn <= 0;
+           *in51 = '0';
+         EndIf;
+         Write R000204;
+         Write R000203;
+         Exfmt R000202C;
+         If csrrrn > 0;
+           Chain csrrrn R000202;
+           Exsr srEditar;
+           Exsr srIniciar;
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Nuevo
+       //------------------------------------------------------------------
+       Begsr srCrear;
+         Clear R000201;
+         status = 'A';
+         *in12 = '0';
+         *in40 = '0';
+         linnbr= 0;
+         posnbr= 0;
+         DoW *in12 = '0';
+           Write R000204;
+           Exfmt R000201;
+           If *in02 = '1';
+             action = 'I';
+             Exsr srValidar;
+           EndIf;
+           If *in05 = '1';
+             Clear R000201;
+             status = 'A';
+           EndIf;
+         Enddo;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Editar
+       //------------------------------------------------------------------
+       Begsr srEditar;
+         *in12 = '0';
+         *in40 = '1';
+         linnbr= 0;
+         posnbr= 0;
+
+         exec sql declare c_leeprd cursor for
+                  select idproduct, sname, descr, price, status,
+                         crtdate, crtuser, crtwrks
+                  from r0005
+                  where idproduct = :fldid
+                  fetch first 1 rows only;
+         exec sql open c_leeprd;
+         exec sql fetch next from c_leeprd into :Ds_product;
+
+         If sqlstate = '00000';
+           idproduct  = Ds_product.idproduct;
+           descr1     = %Subst(Ds_product.descr: 1: 50);
+           descr2     = %Subst(Ds_product.descr: 51);
+           sname      = Ds_product.sname;
+           price      = Ds_product.price;
+           status     = Ds_product.status;
+         EndIf;
+         exec sql close c_leeprd;
+
+         DoW *in12 = '0';
+           Write R000204;
+           Exfmt R000201;
+           If *in02 = '1';
+             action = 'U';
+             Exsr srValidar;
+           EndIf;
+           If *in08 = '1';
+             action = 'D';
+             Exsr srEliminar;
+           EndIf;
+         Enddo;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Validar
+       //------------------------------------------------------------------
+       Begsr srValidar;
+         errid = 'ID00004   ';
+         dly   = 'Y';
+         errmsg= *blanks;
+         *in70 = '0';
+
+         If idproduct = *blanks;
+           errmsg = 'Se requiere valor para código de producto.';
+           linnbr = 9;
+         EndIf;
+         If errmsg = *blanks and sname = *blanks;
+           errmsg = 'Se requiere nombre corto de producto.';
+           linnbr = 10;
+         EndIf;
+         If errmsg = *blanks and descr1 = *blanks;
+           errmsg = 'Se requiere descripción.';
+           linnbr = 11;
+         EndIf;
+         If errmsg = *blanks and price = 0;
+           errmsg = 'Se requiere un precio mayor a cero.';
+           linnbr = 13;
+         EndIf;
+         If errmsg = *blanks and status <> 'A' and status <> 'I';
+           errmsg = 'Valores admitidos A, I.';
+           linnbr = 14;
+         EndIf;
+
+         If errmsg <> *blanks;
+           callp Msgdly(errid: dly: errmsg);
+           *in70 = '1';
+           posnbr= 21;
+         Else;
+           Exsr srGuardar;
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Guardar
+       //------------------------------------------------------------------
+       Begsr srGuardar;
+         descr = descr1 + descr2;
+         exec sql
+         call PRC005(:idproduct, :sname, :descr, :price, :status,
+                     :usr, :job, :action, :ret, :msg);
+
+         If SQLSTATE = '00000';
+           *in12 = '1';
+           errid = 'ID00003   ';
+           dly   = 'Y';
+           errmsg= *blanks;
+           callp Msgdly(errid: dly: errmsg);
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Eliminar
+       //------------------------------------------------------------------
+       Begsr srEliminar;
+         *in08 = '0';
+         *in12 = '0';
+         Dow *in08 = '0' and *in12 = '0';
+           Exfmt Rdrop;
+         Enddo;
+
+         If *in08 = '1';
+           ret        = *blanks;
+           exec sql
+           call PRC005(:idproduct, '', '', 0, '', '', '',
+                       :action, :ret, :msg);
+
+           If SQLSTATE = '00000' and ret = *blanks;
+             *in12 = '1';
+             errid = 'ID00002   ';
+             dly   = 'Y';
+             errmsg= *blanks;
+             callp Msgdly(errid: dly: errmsg);
+           EndIf;
+
+         EndIf;
+
+       Endsr;

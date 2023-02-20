@@ -1,0 +1,35 @@
+-- AUTOR: CARLOS VERA LEON
+-- FECHA: 2023/01/16
+-- OBJETIVO: PROCESAR TRANSACCIONES DE VENTAS
+
+CREATE OR REPLACE PROCEDURE PRC007(In p_iddoc INTEGER,
+                        In p_docline SMALLINT,
+                        In p_idproduct VARCHAR(9),
+                        In p_descr VARCHAR(100),
+                        In p_price DECIMAL(14, 2),
+                        In p_qty DECIMAL(6, 0),
+                        In p_amtline DECIMAL(14, 2),
+                        In p_prctax DECIMAL(5, 2),
+                        In p_amttax DECIMAL(14, 2),
+                        In p_amtsubtotal DECIMAL(14, 2),
+                        InOut p_ret VARCHAR(5),
+                        InOut p_msg VARCHAR(100))
+LANGUAGE SQL
+SET OPTION COMMIT = *NONE
+BEGIN
+  DECLARE w_crtdate TIMESTAMP;
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+     Set p_ret = SQLSTATE;
+     Return;
+  END;
+
+  -- Insertar
+  SET w_crtdate = current_timestamp;
+  Insert Into R0007(iddoc, docline, idproduct, descr, price,
+                    qty, amtline, prctax, amttax, amtsubtotal)
+             Values(p_iddoc, p_docline, p_idproduct, p_descr,
+                    p_price, p_qty, p_amtline, p_prctax,
+                    p_amttax, p_amtsubtotal);
+
+END

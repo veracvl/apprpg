@@ -1,0 +1,22 @@
+      create table R0005 (
+         idProduct varchar(9) not null,
+         sname varchar(15),
+         descr varchar(100) not null,
+         price decimal(14,2) not null,
+         status char(1) not null,
+         crtDate timestamp not null,
+         crtUser varchar(10) not null,
+         crtWrks varchar(10) not null,
+         primary key(idProduct)
+      );
+      label on column R0005 (
+         idProduct text is 'Product Code',
+         sname text is 'Short Name',
+         descr text is 'Product Description',
+         price text is 'Unit Price',
+         status text is 'Status A/I',
+         crtDate text is 'Date Created',
+         crtUser text is 'User Created',
+         crtWrks text is 'WorkStation'
+      );
+

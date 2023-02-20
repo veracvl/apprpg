@@ -1,0 +1,11 @@
+      create table R0000 (
+         idCompany integer not null,
+         companyName varchar(100) not null,
+         prcTax decimal(5,2) not null,
+         primary key(idCompany)
+      );
+      label on column R0000 (
+         idCompany text is 'Company Number',
+         companyName text is 'Company Name',
+         prcTax text is 'Tax Percentage'
+      );

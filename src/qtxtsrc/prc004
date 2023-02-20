@@ -1,0 +1,52 @@
+-- AUTOR: CARLOS VERA LEON
+-- FECHA: 2023/01/17
+-- OBJETIVO: PROCESAR MANTENIMIENTO DE R0004-RELACIONES
+
+CREATE OR REPLACE PROCEDURE PRC004(In p_idcustomer INTEGER,
+                        In p_relnumber SMALLINT,
+                        In p_reltype VARCHAR(4),
+                        In p_relidcust INTEGER,
+                        In p_relicode VARCHAR(15),
+                        In p_relfname VARCHAR(30),
+                        In p_relsname VARCHAR(30),
+                        In p_action CHAR(1),
+                        InOut p_ret VARCHAR(5),
+                        InOut p_msg VARCHAR(100))
+LANGUAGE SQL
+SET OPTION COMMIT = *NONE
+BEGIN
+  DECLARE w_reg INTEGER;
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+     Set p_ret = SQLSTATE;
+     Return;
+  END;
+
+  If p_action = 'U' Then
+    Select count(1) into w_reg
+    From R0004 Where idcustomer = p_idcustomer;
+    If w_reg = 0 Then
+      Set p_action = 'I';
+    End If;
+  End If;
+
+  -- Si acción es insertar
+  If p_action = 'I' Then
+    Insert Into R0004(idcustomer, relnumber, reltype, relidcust,
+                      relicode, relfname, relsname)
+               Values(p_idcustomer, p_relnumber, p_reltype, p_relidcust,
+                      p_relicode, p_relfname, p_relsname);
+
+  ElseIf p_action = 'D' Then
+  -- Si acción es eliminar
+    Delete R0004 Where idcustomer = p_idcustomer;
+
+  ElseIf p_action = 'U' Then
+  -- Si acción es actualizar
+    Update R0004
+    Set relicode       = p_relicode,
+        relfname       = p_relfname,
+        relsname       = p_relsname
+    Where idcustomer = p_idcustomer;
+  End If;
+END

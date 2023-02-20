@@ -1,0 +1,46 @@
+-- AUTOR: CARLOS VERA LEON
+-- FECHA: 2023/01/16
+-- OBJETIVO: PROCESAR MANTENIMIENTO DE R0005-PRODUCTOS
+
+CREATE OR REPLACE PROCEDURE PRC005(In p_idproduct VARCHAR(9),
+                        In p_sname VARCHAR(15),
+                        In p_descr VARCHAR(100),
+                        In p_price DECIMAL(14,2),
+                        In p_status CHAR(1),
+                        In p_crtuser VARCHAR(10),
+                        In p_crtwrks VARCHAR(10),
+                        In p_action CHAR(1),
+                        InOut p_ret VARCHAR(5),
+                        InOut p_msg VARCHAR(100))
+LANGUAGE SQL
+SET OPTION COMMIT = *NONE
+BEGIN
+  DECLARE w_crtdate TIMESTAMP;
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+     Set p_ret = SQLSTATE;
+     Return;
+  END;
+
+  -- Si acción es insertar
+  If p_action = 'I' Then
+    SET w_crtdate = current_timestamp;
+    Insert Into R0005(idproduct, sname,   descr,   price,
+                      status,    crtdate, crtuser, crtwrks)
+               Values(p_idproduct, p_sname,   p_descr,   p_price,
+                      p_status,    w_crtdate, p_crtuser, p_crtwrks);
+
+  ElseIf p_action = 'D' Then
+  -- Si acción es eliminar
+    Delete R0005 Where idproduct = p_idproduct;
+
+  ElseIf p_action = 'U' Then
+  -- Si acción es actualizar
+    Update R0005
+    Set sname = p_sname,
+        descr = p_descr,
+        price = p_price,
+        status= p_status
+    Where idproduct = p_idproduct;
+  End If;
+END

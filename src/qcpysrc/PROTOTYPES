@@ -1,0 +1,20 @@
+     **
+       // Prototipo Compañia
+       Dcl-pr getCompany varchar(114);
+       End-pr;
+       // Prototipo Secuencia
+       Dcl-pr getSequence int(10);
+         *N varchar(4) Value;
+       End-pr;
+       // Actualizar Secuencia
+       Dcl-pr setSequence int(3);
+         *N varchar(4) Value;
+         *N int(10) Value;
+       End-pr;
+       // Prototipo Delay
+       Dcl-pr msgdly Extpgm;
+         id  char(10);
+         dly char(1);
+         msg char(50);
+       End-pr;
+     **

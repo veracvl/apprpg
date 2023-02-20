@@ -1,0 +1,24 @@
+      create table R0004 (
+         idCustomer int not null,
+         relNumber smallint not null,
+         relType varchar(4) not null,
+         relidCust int,
+         reliCode varchar(15) not null,
+         relfName varchar(30) not null,
+         relsName varchar(30) not null,
+         primary key(idCustomer, relNumber),
+         foreign key(idCustomer)
+                 references R0001(idCustomer)
+                 on update restrict
+                 on delete restrict
+      );
+      label on column R0004 (
+         idCustomer text is 'Customer Number',
+         relNumber text is 'Relation Number',
+         relType text is 'Relation Type',
+         relidCust text is 'Rel.Customer Number',
+         reliCode text is 'Rel.Identification Number',
+         relfName text is 'Rel.First Name',
+         relsName text is 'Rel.Last Name'
+      );
+

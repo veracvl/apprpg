@@ -1,0 +1,62 @@
+     hnomain
+     hdebug(*yes)
+     ********************************************************************
+     ** Autor    : Carlos Vera L.                                      **
+     ** Fecha    : 2023/01/16                                          **
+     ** Objetivo : Obtener datos básicos                               **
+     ********************************************************************
+     **=================================================================*
+      /copy *libl/qcpysrc,DS0000
+     **=================================================================*
+       exec sql set option commit = *NONE;
+       Dcl-proc getCompany export;
+        Dcl-pi getCompany varchar(114);
+        End-pi;
+
+        // Select full stx
+        exec sql declare C1 cursor for
+                 select idcompany, companyname, prctax
+                 from r0000
+                 fetch first 1 rows only;
+        exec sql open C1;
+        exec sql fetch next from C1 into :Ds_data;
+        exec sql close C1;
+
+        // Return ds.
+        return Ds_data;
+       End-proc;
+       Dcl-proc getSequence export;
+        Dcl-pi getSequence int(10);
+         p_process varchar(4) Value;
+        End-pi;
+        Dcl-s w_seq int(10);
+
+        exec sql declare C2 cursor for
+                 select seqnumber
+                 from r0010
+                 where idprocess = :p_process
+                 fetch first 1 rows only;
+        exec sql open C2;
+        exec sql fetch next from C2 into :w_seq;
+        exec sql close C2;
+
+        // Return
+        return w_seq;
+       End-proc;
+       Dcl-proc setSequence export;
+        Dcl-pi setSequence int(3);
+         p_process varchar(4) Value;
+         p_seq int(10) Value;
+        End-pi;
+        Dcl-s w_result int(3) inz(0);
+
+        exec sql update r0010 set seqnumber = :p_seq
+                 where idprocess = :p_process;
+
+        If sqlstate <> '00000';
+          w_result = -1;
+        EndIf;
+
+        // Return
+        return w_result;
+       End-proc;

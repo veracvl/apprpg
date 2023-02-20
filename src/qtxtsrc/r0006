@@ -1,0 +1,29 @@
+      create table R0006 (
+         idDoc int not null,
+         idCustomer int not null,
+         invoiceNumber int not null,
+         amtBeforeTax decimal(15,2) default 0,
+         amtTax decimal(14,2) default 0,
+         amtTotal decimal(15,2) default 0,
+         status char(1) not null,
+         crtDate timestamp not null,
+         crtUser varchar(10) not null,
+         crtWrks varchar(10) not null,
+         primary key(idDoc),
+         foreign key(idCustomer)
+                 references R0001(idCustomer)
+                 on update restrict
+                 on delete restrict
+      );
+      label on column R0006 (
+         idDoc text is 'Document Number',
+         idCustomer text is 'Customer Number',
+         invoiceNumber text is 'Invoice Number',
+         amtBeforeTax text is 'Amount Before Tax',
+         amtTax text is 'Amount Tax',
+         amtTotal text is 'Amount Total',
+         status text is 'Status O/T/C',
+         crtDate text is 'Date Created',
+         crtUser text is 'User Created',
+         crtWrks text is 'WorkStation'
+      );

@@ -1,0 +1,98 @@
+     A*%%TS  SD  20230219  211545  DAASESDIG   REL-V7R4M0  5770-WDS
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A          R R000201
+     A*%%TS  SD  20230218  212302  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF02(02)
+     A                                      CF05(05)
+     A                                      CF08(08)
+     A                                      CF12(12)
+     A  70                                  CSRLOC(LINNBR POSNBR)
+     A                                      OVERLAY
+     A            OSTS          10A  O  6  5COLOR(RED)
+     A                                 10  5'Nombre Corto'
+     A                                 11  5'Descripción'
+     A            STATUS         1A  B 14 21
+     A            SNAME         15A  B 10 21
+     A            DESCR1        50A  B 11 21
+     A                                  7  5'INFORMACION DE PRODUCTO'
+     A                                      COLOR(WHT)
+     A                                  9  5'Id. Producto'
+     A                                 13  5'Precio'
+     A            PRICE         14Y 2B 13 21EDTWRD('   ,   ,   ,   .  ')
+     A            DESCR2        50A  B 12 21
+     A                                 14  5'Estado'
+     A                                 14 24'Activo - Inactivo'
+     A                                      COLOR(BLU)
+     A                                 13 41'US$'
+     A                                      COLOR(BLU)
+     A                                 21  4'F2=Guardar'
+     A                                      COLOR(BLU)
+     A                                 21 18'F5=Refrescar'
+     A                                      COLOR(BLU)
+     A                                 21 34'F8=Eliminar'
+     A                                      COLOR(BLU)
+     A                                 21 49'F12=Cancelar'
+     A                                      COLOR(BLU)
+     A            IDPRODUCT      9A  B  9 21
+     A  40                                  DSPATR(PR)
+     A            LINNBR         3  0H
+     A            POSNBR         3  0H
+     A          R R000202                   SFL
+     A*%%TS  SD  20230216  225005  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            FLDNAM        40A  O  9 15
+     A            FLDPRI        14Y 2O  9 59EDTWRD('   ,   ,   ,   .  ')
+     A            FLDSTS         1A  O  9 79
+     A            FLDID          9   O  9  4
+     A          R R000202C                  SFLCTL(R000202)
+     A*%%TS  SD  20230219  211545  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      SFLSIZ(0010)
+     A                                      SFLPAG(0010)
+     A                                      CF03(03)
+     A                                      CF06(06)
+     A                                      OVERLAY
+     A                                      SFLCSRRRN(&CSRRRN)
+     A  51                                  SFLDSP
+     A  52                                  SFLDSPCTL
+     A  53                                  SFLCLR
+     A  54                                  SFLEND(*MORE)
+     A            CSRRRN         5S 0H
+     A                                  7 15'Descripción'
+     A                                      COLOR(WHT)
+     A                                  7 76'Sts.'
+     A                                      COLOR(WHT)
+     A                                  7  4'Producto'
+     A                                      COLOR(WHT)
+     A                                  7 64'US$ Precio'
+     A                                      COLOR(WHT)
+     A          R R000203
+     A*%%TS  SD  20230216  173029  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      OVERLAY
+     A                                 21  4'F3=Salir'
+     A                                      COLOR(BLU)
+     A                                 21 16'F6=Crear'
+     A                                      COLOR(BLU)
+     A          R R000204
+     A*%%TS  SD  20230219  155159  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            ONAME         30A  O  1  2
+     A                                  1 71USER
+     A                                  2 73DATE
+     A                                      EDTCDE(Y)
+     A                                  3 73TIME
+     A            OTITLE        50A  O  2  2
+     A                                  4  2'__________________________________-
+     A                                      ___________________________________-
+     A                                      __________'
+     A                                      COLOR(WHT)
+     A          R RDROP
+     A*%%TS  SD  20230218  132225  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF08(08)
+     A                                      CF12(12)
+     A                                      OVERLAY
+     A                                      WINDOW(16 10 4 40)
+     A                                  2  1'¿ Está seguro(a) de eliminar regis-
+     A                                      tro ?'
+     A                                  3  3'F8=Eliminar'
+     A                                      COLOR(BLU)
+     A                                  3 18'F12=Cancelar'
+     A                                      COLOR(BLU)

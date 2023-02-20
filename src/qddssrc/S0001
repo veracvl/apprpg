@@ -1,0 +1,181 @@
+     A*%%TS  SD  20230219  211545  DAASESDIG   REL-V7R4M0  5770-WDS
+     A*%%EC
+     A                                      DSPSIZ(24 80 *DS3)
+     A          R R000101
+     A*%%TS  SD  20230218  235118  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF02(02)
+     A                                      CF05(05)
+     A                                      CF08(08)
+     A                                      CF12(12)
+     A                                      ROLLUP(25)
+     A  70                                  CSRLOC(LINNBR     POSNBR)
+     A                                      OVERLAY
+     A            OSTS          10A  O  6  5COLOR(RED)
+     A                                  9  5'Id. Cliente'
+     A                                 10  5'Identificación'
+     A                                 11  5'Nombres'
+     A                                 13  5'Apellidos'
+     A                                 15  5'Fecha de Nac.'
+     A                                 16  5'Estado Civil'
+     A                                  7  5'INFORMACION DE CLIENTE'
+     A                                      COLOR(WHT)
+     A                                 19  5'Cliente desde'
+     A  50                              7 50'INFORMACION DE CONYUGE'
+     A                                      COLOR(WHT)
+     A            MSTATUS        1A  B 16 21
+     A            CRTDATE        8Y 0O 19 21EDTWRD('    /  /  ')
+     A            BIRTHDAY       8Y 0B 15 21EDTWRD('    /  /  ')
+     A                                      EDTMSK('    &  &  ')
+     A            IDENTCODE     15A  B 10 21
+     A  50                             10 50'Identificación'
+     A  50                             11 50'Nombres'
+     A  50                             13 50'Apellidos'
+     A            FNAME1        15A  B 11 21
+     A            FNAME2        15A  B 12 21
+     A            SNAME1        15A  B 13 21
+     A            SNAME2        15A  B 14 21
+     A  50        RELFNAME1     15A  B 11 66
+     A  50        RELFNAME2     15A  B 12 66
+     A  50        RELSNAME1     15A  B 13 66
+     A  50        RELSNAME2     15A  B 14 66
+     A  50        RELICODE      15A  B 10 66
+     A  50        RELIDCUST      9Y 0B  9 66EDTCDE(4)
+     A                                 16 24'Soltero - Casado - Viudo'
+     A                                      COLOR(BLU)
+     A                                 17 24'Divorciado - Unión libre'
+     A                                      COLOR(BLU)
+     A  50                              9 50'Id. Conyuge'
+     A                                 21  4'F2=Guardar'
+     A                                      COLOR(BLU)
+     A                                 21 18'F5=Refrescar'
+     A                                      COLOR(BLU)
+     A                                 21 34'F8=Eliminar'
+     A                                      COLOR(BLU)
+     A                                 21 49'F12=Cancelar'
+     A                                      COLOR(BLU)
+     A                                 18  5'Estado'
+     A            STATUS         1A  B 18 21
+     A                                 18 24'Activo - Inactivo'
+     A                                      COLOR(BLU)
+     A            IDCUSTOMER     9Y 0O  9 21EDTCDE(4)
+     A                                 21 65'Avanzar'
+     A                                      COLOR(BLU)
+     A            LINNBR         3S 0H
+     A            POSNBR         3S 0H
+     A          R R000102
+     A*%%TS  SD  20230218  235118  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF02(02)
+     A                                      CF05(05)
+     A                                      CF08(08)
+     A                                      CF12(12)
+     A                                      ROLLDOWN(26)
+     A  71                                  CSRLOC(LINNBR     POSNBR)
+     A                                      OVERLAY
+     A            OSTS          10A  O  6  5COLOR(RED)
+     A                                  7 32'Id. Cliente'
+     A                                      COLOR(BLU)
+     A                                 12  5'Dirección'
+     A            FNWRKST        8Y 0B 17 21EDTWRD('    /  /  ')
+     A                                      EDTMSK('    &  &  ')
+     A            FNCONAME1     50A  B 10 21
+     A            FNCONMBR      15A  B 14 21
+     A                                  7  5'INFORMACION FINANCIERA'
+     A                                      COLOR(WHT)
+     A            IDCUSTOMER     9Y 0O  7 44COLOR(BLU)
+     A                                      EDTCDE(4)
+     A            FULLNAME      25A  O  7 54COLOR(BLU)
+     A                                  9  5'Relación Econ.'
+     A                                 10  5'Compañia'
+     A                                 14  5'Contacto Telf.'
+     A                                 15  5'Posición'
+     A                                 16  5'Salario'
+     A                                 17  5'Fecha de Ing.'
+     A            FNSALARY      14Y 2B 16 21EDTWRD('   ,   ,   ,   .  ')
+     A            FNPOS          4A  B 15 21
+     A            FNCOADDR1     50A  B 12 21
+     A            FNRTYPE        1A  B  9 21
+     A                                  9 24'Dependiente - Independiente - Mixt-
+     A                                      o - Sin Act. Económica'
+     A                                      COLOR(BLU)
+     A                                 21  4'F2=Guardar'
+     A                                      COLOR(BLU)
+     A                                 21 18'F5=Refrescar'
+     A                                      COLOR(BLU)
+     A                                 21 34'F8=Eliminar'
+     A                                      COLOR(BLU)
+     A                                 21 49'F12=Cancelar'
+     A                                      COLOR(BLU)
+     A                                 16 40'US$'
+     A                                      COLOR(BLU)
+     A            OFNPOS        25A  O 15 27COLOR(BLU)
+     A            FNCOADDR2     50A  B 13 21
+     A            FNCONAME2     50A  B 11 21
+     A                                 21 65'Retroceder'
+     A                                      COLOR(BLU)
+     A            LINNBR         3S 0H
+     A            POSNBR         3S 0H
+     A          R R000105                   SFL
+     A*%%TS  SD  20230218  111801  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            FLDID          9Y 0O  9  4EDTCDE(4)
+     A            FLDIDE        15A  O  9 15
+     A            FLDNAM        30A  O  9 32
+     A            FLDSTS         1A  O  9 64
+     A          R R000105C                  SFLCTL(R000105)
+     A*%%TS  SD  20230219  211545  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      SFLSIZ(0010)
+     A                                      SFLPAG(0010)
+     A                                      CF03(03)
+     A                                      CF06(06)
+     A                                      OVERLAY
+     A                                      SFLCSRRRN(&CSRRRN)
+     A  51                                  SFLDSP
+     A  52                                  SFLDSPCTL
+     A  53                                  SFLCLR
+     A  54                                  SFLEND(*MORE)
+     A            CSRRRN         5S 0H
+     A                                  7  4'Id.Cliente'
+     A                                      COLOR(WHT)
+     A                                  7 32'Nombres'
+     A                                      COLOR(WHT)
+     A                                  7 15'Identificación'
+     A                                      COLOR(WHT)
+     A                                  7 64'Sts.'
+     A                                      COLOR(WHT)
+     A          R R000108
+     A*%%TS  SD  20230217  145522  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      OVERLAY
+     A                                 21  4'F3=Salir'
+     A                                      COLOR(BLU)
+     A                                 21 16'F6=Crear'
+     A                                      COLOR(BLU)
+     A          R R000109
+     A*%%TS  SD  20230217  145522  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      OVERLAY
+     A                                 21  4'F6=Crear'
+     A                                      COLOR(BLU)
+     A                                 21 16'F12=Cancelar'
+     A                                      COLOR(BLU)
+     A          R R000110
+     A*%%TS  SD  20230219  155647  DAASESDIG   REL-V7R4M0  5770-WDS
+     A            ONAME         30A  O  1  2
+     A                                  1 71USER
+     A                                  2 73DATE
+     A                                      EDTCDE(Y)
+     A                                  3 73TIME
+     A            OTITLE        50A  O  2  2
+     A                                  4  2'__________________________________-
+     A                                      ___________________________________-
+     A                                      __________'
+     A                                      COLOR(WHT)
+     A          R RDROP
+     A*%%TS  SD  20230218  132225  DAASESDIG   REL-V7R4M0  5770-WDS
+     A                                      CF08(08)
+     A                                      CF12(12)
+     A                                      OVERLAY
+     A                                      WINDOW(16 10 4 40)
+     A                                  2  1'¿ Está seguro(a) de eliminar regis-
+     A                                      tro ?'
+     A                                  3  3'F8=Eliminar'
+     A                                      COLOR(BLU)
+     A                                  3 18'F12=Cancelar'
+     A                                      COLOR(BLU)

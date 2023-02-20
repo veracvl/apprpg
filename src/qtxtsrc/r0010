@@ -1,0 +1,9 @@
+      create table R0010 (
+         idProcess varchar(4) not null,
+         seqNumber int not null,
+         primary key(idProcess)
+      );
+      label on column R0010 (
+         idProcess text is 'Id. Process',
+         seqNumber text is 'Sequence'
+      );

@@ -1,0 +1,12 @@
+     **
+     dDs_invoice       ds                  Inz Qualified
+     d idcustomer                     9  0
+     d invoicenumber                  9  0
+     d amtbeforetax                  15  2
+     d amttax                        14  2
+     d amttotal                      15  2
+     d status                         1
+     d crtdate                         z
+     d firstname                     30
+     d surname                       30
+     **

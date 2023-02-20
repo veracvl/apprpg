@@ -1,0 +1,491 @@
+     h debug(*yes)
+       // Autor    : Carlos Vera L.
+       // Fecha    : 2023/01/17
+       // Programa : Mantenimiento de clientes
+
+       // Files
+       Dcl-f S0001 WorkStn(*Ext) sfile(R000105:rrn);
+
+      /copy *libl/qcpysrc,DS0000
+      /copy *libl/qcpysrc,DS0001
+      /copy *libl/qcpysrc,PROTOTYPES
+
+       // Variables
+       Dcl-s rrn       packed(5:0);
+       Dcl-s fname     varchar(30);
+       Dcl-s sname     varchar(30);
+       Dcl-s fnconame  varchar(100);
+       Dcl-s fncoaddr  varchar(100);
+       Dcl-s chbth     varchar(8);
+       Dcl-s chwrk     varchar(8);
+       Dcl-s win       int(3);
+       Dcl-s action    char(1);
+       Dcl-s errid     char(10);
+       Dcl-s dly       char(1);
+       Dcl-s errmsg    char(50);
+       Dcl-s ret       varchar(5);
+       Dcl-s msg       varchar(100);
+       Dcl-ds dscl2    likeds(Ds_cltes2);
+       Dcl-ds dscl3    likeds(Ds_cltes3);
+     d                sds
+     d  job                  244    253
+     d  usr                  254    263
+
+
+       Ds_data = getCompany();
+       oname = Ds_data.companyName;
+       otitle= 'MANTENIMIENTO DE CLIENTES';
+       Exsr srIniciar;
+
+       DoW *in03 = '0';
+         Exsr srPresentar;
+         If *in06 = '1';
+           Exsr srCrear;
+           Exsr srIniciar;
+         EndIf;
+       Enddo;
+
+      // Fin
+       *Inlr = '1';
+
+       //------------------------------------------------------------------
+       // Subrutina de Iniciar Subfile
+       //------------------------------------------------------------------
+       Begsr srIniciar;
+         Exsr srLimpiar;
+         Exsr srCargar;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Limpiar subfiles
+       //------------------------------------------------------------------
+       Begsr srLimpiar;
+         *in51 = '0';
+         *in52 = '0';
+         *in53 = '1';
+         *in54 = '0';
+         rrn   = 0;
+         Write R000105C;
+         *in53 = '0';
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Cargar
+       //------------------------------------------------------------------
+       Begsr srCargar;
+         exec sql declare c_leeclts cursor for
+                  select idcustomer, identcode, firstname, surname,
+                         status
+                  from r0001;
+         exec sql open c_leeclts;
+         exec sql fetch next from c_leeclts into :Ds_cltes1;
+
+         Dow sqlstate = '00000';
+           rrn += 1;
+           fldid  = Ds_cltes1.idcustomer;
+           fldide = Ds_cltes1.identcode;
+           fldnam = %Trim(Ds_cltes1.firstname) + ' ' +
+                    %Trim(Ds_cltes1.surname);
+           fldsts = Ds_cltes1.status;
+           Write R000105;
+           exec sql fetch next from c_leeclts into :Ds_cltes1;
+         Enddo;
+         exec sql close c_leeclts;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina para presentar subfile
+       //------------------------------------------------------------------
+       Begsr srPresentar;
+         *in51 = '1';
+         *in52 = '1';
+         If rrn <= 0;
+           *in51 = '0';
+         EndIf;
+         Write R000110;
+         Write R000108;
+         Exfmt R000105C;
+         If csrrrn > 0;
+           Chain csrrrn R000105;
+           Exsr srEditar;
+           Exsr srIniciar;
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Nuevo
+       //------------------------------------------------------------------
+       Begsr srCrear;
+         Clear R000101;
+         Clear R000102;
+         win    = 1;
+         status = 'A';
+         *in12  = '0';
+         *in25  = '0';
+         *in26  = '0';
+         linnbr = 0;
+         posnbr = 0;
+         // Obtener secuencia
+         idcustomer = getSequence('0010') + 1;
+         DoW *in12 = '0';
+           *in50 = '0';
+           If mstatus = 'C' or mstatus = 'U';
+             *in50 = '1';
+           EndIf;
+           If *in25 = '1' or win = 2;
+             win = 2;
+             fullname = %Trim(fname1) + ' ' + %Trim(fname2) + ' ' +
+                        %Trim(sname1) + ' ' + %Trim(sname2);
+             Write R000110;
+             Exfmt R000102;
+           EndIf;
+           If *in26 = '1' or win = 1;
+             win = 1;
+             Write R000110;
+             Exfmt R000101;
+
+             // Datos del Conyuge y Financiero
+             fldid = relidcust;
+             Exsr srDataCliente;
+             If ret = '00000';
+               relicode  = Ds_cltes2.identCode;
+               relfname1 = %Subst(Ds_cltes2.firstname: 1: 15);
+               relfname2 = %Subst(Ds_cltes2.firstname: 16);
+               relsname1 = %Subst(Ds_cltes2.surname: 1: 15);
+               relsname2 = %Subst(Ds_cltes2.surname: 16);
+             Else;
+               relidcust = 0;
+               relicode  = *blanks;
+               relfname1 = *blanks;
+               relfname2 = *blanks;
+               relsname1 = *blanks;
+               relsname2 = *blanks;
+             EndIf;
+
+           EndIf;
+           If *in02 = '1';
+             action = 'I';
+             Exsr srValidar;
+           EndIf;
+           If *in05 = '1';
+             Clear R000101;
+             Clear R000102;
+             status = 'A';
+           EndIf;
+         Enddo;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Editar
+       //------------------------------------------------------------------
+       Begsr srEditar;
+         Clear R000101;
+         Clear R000102;
+         win    = 1;
+         *in12  = '0';
+         *in25  = '0';
+         *in26  = '0';
+         linnbr = 0;
+         posnbr = 0;
+
+         // Datos del Cliente y Financiero
+         Exsr srDataCliente;
+
+         If ret = '00000';
+           idCustomer    = Ds_cltes2.idCustomer;
+           identCode     = Ds_cltes2.identCode;
+           fname1        = %Subst(Ds_cltes2.firstname: 1: 15);
+           fname2        = %Subst(Ds_cltes2.firstname: 16);
+           sname1        = %Subst(Ds_cltes2.surname: 1: 15);
+           sname2        = %Subst(Ds_cltes2.surname: 16);
+           mstatus       = Ds_cltes2.maritalstatus;
+           birthDay      = %Int(%Subst(%Char(Ds_cltes2.birthday): 1: 4) +
+                                %Subst(%Char(Ds_cltes2.birthday): 6: 2) +
+                                %Subst(%Char(Ds_cltes2.birthday): 9: 2));
+           crtdate       = %Int(%Subst(%Char(Ds_cltes2.crtdate): 1: 4) +
+                                %Subst(%Char(Ds_cltes2.crtdate): 6: 2) +
+                                %Subst(%Char(Ds_cltes2.crtdate): 9: 2));
+           fnrtype       = Ds_cltes2.fnrelationtype;
+           fnconame1     = %Subst(Ds_cltes2.fncompanyname: 1: 50);
+           fnconame2     = %Subst(Ds_cltes2.fncompanyname: 51);
+           fncoaddr1     = %Subst(Ds_cltes2.fncompanyaddr: 1: 50);
+           fncoaddr2     = %Subst(Ds_cltes2.fncompanyaddr: 51);
+           fnconmbr      = Ds_cltes2.fncompanynmbr;
+           fnpos         = Ds_cltes2.fnposition;
+           fnsalary      = Ds_cltes2.fnsalary;
+           fnwrkst       = %Int(%Subst(%Char(Ds_cltes2.fnworkstdt): 1: 4) +
+                                %Subst(%Char(Ds_cltes2.fnworkstdt): 6: 2) +
+                                %Subst(%Char(Ds_cltes2.fnworkstdt): 9: 2));
+           status        = Ds_cltes2.status;
+         EndIf;
+         exec sql close c_leeclt;
+
+         // Datos del Conyuge de Cliente
+         exec sql declare c_leecltc cursor for
+                  select idcustomer, relnumber, reltype, relidcust,
+                         relicode, relfname, relsname
+                  from r0004
+                  where idcustomer = :fldid
+                  fetch first 1 rows only;
+         exec sql open c_leecltc;
+         exec sql fetch next from c_leecltc into :Ds_cltes3;
+
+         If sqlstate = '00000';
+           idCustomer    = Ds_cltes3.idcustomer;
+           relidCust     = Ds_cltes3.relidcust;
+           reliCode      = Ds_cltes3.relicode;
+           relfName1     = %Subst(Ds_cltes3.relfname: 1: 15);
+           relfName2     = %Subst(Ds_cltes3.relfname: 16);
+           relsName1     = %Subst(Ds_cltes3.relsname: 1: 15);
+           relsName2     = %Subst(Ds_cltes3.relsname: 16);
+         EndIf;
+         exec sql close c_leecltc;
+
+         DoW *in12 = '0';
+           *in50 = '0';
+           If mstatus = 'C' or mstatus = 'U';
+             *in50 = '1';
+           EndIf;
+           If *in25 = '1' or win = 2;
+             win = 2;
+             fullname = %Trim(fname1) + ' ' + %Trim(fname2) + ' ' +
+                        %Trim(sname1) + ' ' + %Trim(sname2);
+             Write R000110;
+             Exfmt R000102;
+           EndIf;
+           If *in26 = '1' or win = 1;
+             win = 1;
+             Write R000110;
+             Exfmt R000101;
+
+             // Datos del Conyuge y Financiero
+             If relidcust > 0;
+               fldid = relidcust;
+               Exsr srDataCliente;
+               If ret = '00000';
+                 relicode  = Ds_cltes2.identCode;
+                 relfname1 = %Subst(Ds_cltes2.firstname: 1: 15);
+                 relfname2 = %Subst(Ds_cltes2.firstname: 16);
+                 relsname1 = %Subst(Ds_cltes2.surname: 1: 15);
+                 relsname2 = %Subst(Ds_cltes2.surname: 16);
+               Else;
+                 relidcust = 0;
+                 relicode  = *blanks;
+                 relfname1 = *blanks;
+                 relfname2 = *blanks;
+                 relsname1 = *blanks;
+                 relsname2 = *blanks;
+               EndIf;
+             EndIf;
+
+           EndIf;
+           If *in02 = '1';
+             action = 'U';
+             Exsr srValidar;
+           EndIf;
+           If *in08 = '1';
+             action = 'D';
+             Exsr srEliminar;
+           EndIf;
+         Enddo;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Validar
+       //------------------------------------------------------------------
+       Begsr srValidar;
+         errid = 'ID00004   ';
+         dly   = 'Y';
+         errmsg= *blanks;
+         *in70 = '0';
+         *in71 = '0';
+
+         If identcode = *blanks;
+           errmsg = 'Se requiere identificación.';
+           linnbr = 10;
+           posnbr = 21;
+           win    = 1;
+         EndIf;
+         If errmsg = *blanks and fname1 = *blanks;
+           errmsg = 'Se requiere nombre.';
+           linnbr = 11;
+           posnbr = 21;
+           win    = 1;
+         EndIf;
+         If errmsg = *blanks and sname1 = *blanks;
+           errmsg = 'Se requiere apellido.';
+           linnbr = 13;
+           posnbr = 21;
+           win    = 1;
+         EndIf;
+         If errmsg = *blanks and birthday = 0;
+           errmsg = 'Fecha de nacimiento es requerida.';
+           linnbr = 15;
+           posnbr = 21;
+           win    = 1;
+         EndIf;
+         If errmsg = *blanks and mstatus <> 'S' and mstatus <> 'C'
+                             and mstatus <> 'D' and mstatus <> 'V'
+                             and mstatus <> 'U';
+           errmsg = 'Valores admitidos de la lista.';
+           linnbr = 16;
+           posnbr = 21;
+           win    = 1;
+         EndIf;
+         If errmsg = *blanks and status <> 'A' and status <> 'I';
+           errmsg = 'Valores admitidos A, I.';
+           linnbr = 18;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fnrtype <> 'D' and fnrtype <> 'I'
+                             and fnrtype <> 'M' and fnrtype <> 'S';
+           errmsg = 'Valores admitidos D, I, M, S.';
+           linnbr = 9;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fnconame1 = *blanks;
+           errmsg = 'Nombre de compañia es requerido.';
+           linnbr = 10;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fncoaddr1 = *blanks;
+           errmsg = 'Dirección de compañia es requerido.';
+           linnbr = 12;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fnconmbr = *blanks;
+           errmsg = 'Teléfono de compañia es requerido.';
+           linnbr = 14;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fnpos = *blanks;
+           errmsg = 'Posición laboral es requerida.';
+           linnbr = 15;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fnsalary = 0;
+           errmsg = 'Salario es requerido.';
+           linnbr = 16;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+         If errmsg = *blanks and fnwrkst = 0;
+           errmsg = 'Fecha de inicio es requerida.';
+           linnbr = 17;
+           posnbr = 21;
+           win    = 2;
+         EndIf;
+
+         If errmsg <> *blanks;
+           callp Msgdly(errid: dly: errmsg);
+           *in25 = '0';
+           *in26 = '0';
+           If win = 1;
+             *in70 = '1';
+           Else;
+             *in71 = '1';
+           EndIf;
+         Else;
+           Exsr srGuardar;
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Obtener datos de cliente
+       //------------------------------------------------------------------
+       Begsr srDataCliente;
+         // Datos del Cliente
+         clear Ds_cltes2;
+         exec sql declare c_leeclt cursor for
+                  select idcustomer, identcode, firstname, surname,
+                         maritalstatus, birthday, fnrelationtype,
+                         fncompanyname, fncompanyaddr, fncompanynmbr,
+                         fnposition, fnsalary, fnworkstdt, status,
+                         crtdate, crtuser, crtwrks
+                  from r0001
+                  where idcustomer = :fldid
+                  fetch first 1 rows only;
+         exec sql open c_leeclt;
+         exec sql fetch next from c_leeclt into :Ds_cltes2;
+         ret = SQLSTATE;
+         exec sql close c_leeclt;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Guardar
+       //------------------------------------------------------------------
+       Begsr srGuardar;
+         ret        = *blanks;
+         fname      = %Trim(fname1) + ' ' + %Trim(fname2);
+         sname      = %Trim(sname1) + ' ' + %Trim(sname2);
+         fnconame   = fnconame1 + fnconame2;
+         fncoaddr   = fncoaddr1 + fncoaddr2;
+         chbth      = %Char(birthday);
+         chwrk      = %Char(fnwrkst);
+         If action = 'I';
+           idcustomer = getSequence('0010') + 1;
+         EndIf;
+         exec sql
+         call PRC001(:idcustomer, :identcode, :fname, :sname,
+                     :mstatus, :chbth, :fnrtype,
+                     :fnconame, :fncoaddr, :fnconmbr,
+                     :fnpos, :fnsalary, :chwrk, :status,
+                     :usr, :job, :action, :ret, :msg);
+
+         If SQLSTATE = '00000' and ret = *blanks;
+           If mstatus = 'C' or mstatus = 'U';
+             fname = %Trim(relfname1) + ' ' + %Trim(relfname2);
+             sname = %Trim(relsname1) + ' ' + %Trim(relsname2);
+             exec sql
+             call PRC004(:idcustomer, 1, 'C', :relidcust, :relicode,
+                         :fname, :sname, :action, :ret, :msg);
+           EndIf;
+           If action = 'I';
+             setSequence('0010': idcustomer);
+           EndIf;
+           *in12 = '1';
+           errid = 'ID00003   ';
+           dly   = 'Y';
+           errmsg= *blanks;
+           callp Msgdly(errid: dly: errmsg);
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Eliminar
+       //------------------------------------------------------------------
+       Begsr srEliminar;
+         *in08 = '0';
+         *in12 = '0';
+         Dow *in08 = '0' and *in12 = '0';
+           Exfmt Rdrop;
+         Enddo;
+
+         If *in08 = '1';
+           ret        = *blanks;
+           exec sql
+           call PRC004(:idcustomer, 0, '', 0, '', '', '',
+                       :action, :ret, :msg);
+
+           If SQLSTATE = '00000' and ret = *blanks;
+             exec sql
+             call PRC001(:idcustomer, '', '', '', '', '', '',
+                          '', '', '', '',  0, '', '',
+                         :usr, :job, :action, :ret, :msg);
+
+             *in12 = '1';
+             errid = 'ID00002   ';
+             dly   = 'Y';
+             errmsg= *blanks;
+             callp Msgdly(errid: dly: errmsg);
+           EndIf;
+
+         EndIf;
+
+       Endsr;

@@ -1,0 +1,11 @@
+             PGM        PARM(&ID &DLY &MSG)
+             DCL        VAR(&ID)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&DLY)  TYPE(*CHAR) LEN(1)
+             DCL        VAR(&MSG)  TYPE(*CHAR) LEN(50)
+             SNDPGMMSG  MSGID(&ID) MSGF(DTAMSG) MSGDTA(&MSG) +
+                          TOPGMQ(*EXT) MSGTYPE(*STATUS)
+
+             IF         COND(&DLY = 'Y') THEN(DO)
+             DLYJOB     DLY(2) /* Delay Job */
+             ENDDO
+             ENDPGM

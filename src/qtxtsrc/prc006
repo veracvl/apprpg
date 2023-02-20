@@ -1,0 +1,34 @@
+-- AUTOR: CARLOS VERA LEON
+-- FECHA: 2023/01/16
+-- OBJETIVO: PROCESAR TRANSACCIONES DE VENTAS
+
+CREATE OR REPLACE PROCEDURE PRC006(In p_iddoc INTEGER,
+                        In p_idcustomer INTEGER,
+                        In p_invoicenumber INTEGER,
+                        In p_amtbeforetax DECIMAL(15,2),
+                        In p_amttax DECIMAL(14,2),
+                        In p_amttotal DECIMAL(15,2),
+                        In p_status CHAR(1),
+                        In p_crtuser VARCHAR(10),
+                        In p_crtwrks VARCHAR(10),
+                        InOut p_ret VARCHAR(5),
+                        InOut p_msg VARCHAR(100))
+LANGUAGE SQL
+SET OPTION COMMIT = *NONE
+BEGIN
+  DECLARE w_crtdate TIMESTAMP;
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+     Set p_ret = SQLSTATE;
+     Return;
+  END;
+
+  -- Insertar
+  SET w_crtdate = current_timestamp;
+  Insert Into R0006(iddoc, idcustomer, invoicenumber,
+                    amtbeforetax, amttax, amttotal,
+                    status, crtdate, crtuser, crtwrks)
+             Values(p_iddoc, p_idcustomer, p_invoicenumber,
+                    p_amtbeforetax, p_amttax, p_amttotal,
+                    p_status, w_crtdate, p_crtuser, p_crtwrks);
+END

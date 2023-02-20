@@ -1,0 +1,320 @@
+     h debug(*yes)
+       // Autor    : Carlos Vera L.
+       // Fecha    : 2023/01/16
+       // Programa : Transacción de venta
+
+       // Files
+       Dcl-f S0006 WorkStn(*Ext) sfile(R000601:rrn)
+                                 sfile(R000602:rrn);
+
+       // Variables
+       Dcl-s rrn    packed(5:0);
+       Dcl-s cont   packed(5:0);
+       Dcl-s descr  varchar(100);
+       Dcl-s action char(1);
+       Dcl-s errid  char(10);
+       Dcl-s dly    char(1);
+       Dcl-s errmsg char(50);
+       Dcl-s isodte date;
+       Dcl-s ret    varchar(5);
+       Dcl-s msg    varchar(100);
+     d                sds
+     d  job                  244    253
+     d  usr                  254    263
+
+      /copy *libl/qcpysrc,DS0000
+      /copy *libl/qcpysrc,DS0001
+      /copy *libl/qcpysrc,DS0005
+      /copy *libl/qcpysrc,DS0006
+      /copy *libl/qcpysrc,PROTOTYPES
+
+       Ds_data = getCompany();
+       oname = Ds_data.companyName;
+       otitle= 'EMISION DE FACTURA';
+       Exsr srIniciar;
+
+       DoW *in03 = '0';
+         Exsr srPresentar;
+         If *in06 = '1';
+           Exsr srCrear;
+           Exsr srIniciar;
+         EndIf;
+       Enddo;
+
+      // Fin
+       *Inlr = '1';
+
+       //------------------------------------------------------------------
+       // Subrutina de Iniciar Subfile
+       //------------------------------------------------------------------
+       Begsr srIniciar;
+         Exsr srLimpiar;
+         Exsr srCargar;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Limpiar subfiles
+       //------------------------------------------------------------------
+       Begsr srLimpiar;
+         *in51 = '0';
+         *in52 = '0';
+         *in53 = '1';
+         *in54 = '0';
+         rrn   = 0;
+         Write R000601C;
+         *in53 = '0';
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Cargar
+       //------------------------------------------------------------------
+       Begsr srCargar;
+         exec sql declare c_leefacs cursor for
+                  select r0006.idcustomer, invoicenumber, amtbeforetax,
+                         amttax, amttotal, r0006.status, r0006.crtdate,
+                         r0001.firstname, r0001.surname
+                  from r0006 inner join r0001
+                  on r0006.idcustomer = r0001.idcustomer;
+         exec sql open c_leefacs;
+         exec sql fetch next from c_leefacs into :Ds_invoice;
+
+         Dow sqlstate = '00000';
+           rrn += 1;
+           fldcus = Ds_invoice.idcustomer;
+           fldnom = %Trim(Ds_invoice.firstname) + ' ' +
+                    %Trim(Ds_invoice.surname);
+           fldnbr = Ds_invoice.invoicenumber;
+           fldfec = %Int(%Subst(%Char(Ds_invoice.crtdate): 1: 4) +
+                         %Subst(%Char(Ds_invoice.crtdate): 6: 2) +
+                         %Subst(%Char(Ds_invoice.crtdate): 9: 2));
+           fldsts = Ds_invoice.status;
+           fldtot = Ds_invoice.amttotal;
+           Write R000601;
+           exec sql fetch next from c_leefacs into :Ds_invoice;
+         Enddo;
+         exec sql close c_leefacs;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina para presentar subfile
+       //------------------------------------------------------------------
+       Begsr srPresentar;
+         *in51 = '1';
+         *in52 = '1';
+         If rrn <= 0;
+           *in51 = '0';
+         EndIf;
+         Write R000604;
+         Write R000603;
+         Exfmt R000601C;
+         If csrrrn > 0;
+           Chain csrrrn R000601;
+           Exsr srConsultar;
+           Exsr srIniciar;
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Nuevo
+       //------------------------------------------------------------------
+       Begsr srCrear;
+         *in12    = '0';
+         // Obtener secuencia documento
+         iddoc    = getSequence('0011') + 1;
+         // Obtener secuencia factura
+         invnum   = getSequence('0012') + 1;
+         status   = 'A';
+         osts     = 'ABIERTA';
+         fullname = '* No Definido';
+         Clear R000605;
+         rrn    = 0;
+         Dow *in12 = '0';
+           isodte = %Date();
+           invfec = %Int(%Char(isodte : *ISO0 ));
+           *in51  = '1';
+           *in52  = '1';
+           If rrn <= 0;
+             *in51 = '0';
+           EndIf;
+           Write R000604;
+           Write R000605;
+           Exfmt R000602C;
+
+           Exsr srDataCliente;
+           If ret = '00000';
+             fullname = %Trim(Ds_cltes4.firstname) + ' ' +
+                        %Trim(Ds_cltes4.surname);
+           Else;
+             fullname = '* No Definido';
+           EndIf;
+
+           If *in07 = '1';
+             *in07 = '0';
+             Dow *in07 = '0' and *in12 = '0';
+               Exfmt RGenerar;
+             Enddo;
+             *in12 = '0';
+             If *In07 = '1';
+               Exsr srValidar;
+             EndIf;
+           EndIf;
+           If *in10 = '1';
+             rrn += 1;
+             clear R000602;
+             fldlin = rrn;
+             Write R000602;
+           EndIf;
+           If csrrrn > 0;
+             Chain csrrrn R000602;
+             If %Found();
+               Exsr srDataProducto;
+               If ret = '00000';
+                 flddes  = Ds_product.descr;
+                 fldpre  = Ds_product.price;
+                 fldsub  = %Dech(fldcan * fldpre: 14: 2);
+                 fldimp  = %Dech((fldsub * Ds_data.prctax) : 14: 2);
+                 fldtot  = %Dech(fldsub + fldimp: 14: 2);
+                 Update R000602;
+                 amtbtax = amtbtax + fldsub;
+                 amttax  = amttax + fldimp;
+                 amttotal= amttotal + fldtot;
+               EndIf;
+             EndIf;
+           EndIf;
+         Enddo;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Obtener datos de cliente
+       //------------------------------------------------------------------
+       Begsr srDataCliente;
+         // Datos del Cliente
+         clear Ds_cltes4;
+         exec sql declare c_leeclt cursor for
+                  select idcustomer, identcode, firstname, surname
+                  from r0001
+                  where idcustomer = :idcustomer
+                  fetch first 1 rows only;
+         exec sql open c_leeclt;
+         exec sql fetch next from c_leeclt into :Ds_cltes4;
+         ret = SQLSTATE;
+         exec sql close c_leeclt;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Obtener datos de producto
+       //------------------------------------------------------------------
+       Begsr srDataProducto;
+         // Datos del Producto
+         clear Ds_cltes4;
+         exec sql declare c_leepro cursor for
+                  select idproduct, sname, descr, price, status,
+                         crtdate, crtuser, crtwrks
+                  from r0005
+                  where idproduct = :fldid
+                  fetch first 1 rows only;
+         exec sql open c_leepro;
+         exec sql fetch next from c_leepro into :Ds_product;
+         ret = SQLSTATE;
+         exec sql close c_leepro;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Consultar
+       //------------------------------------------------------------------
+       Begsr srConsultar;
+         *in12 = '0';
+
+         exec sql declare c_leefac cursor for
+                  select idcustomer, invoicenumber, amtbeforetax,
+                         amttax, amttotal, status
+                  from r0006
+                  fetch first 1 rows only;
+         exec sql open c_leefac;
+         exec sql fetch next from c_leefac into :Ds_invoice;
+
+         If sqlstate = '00000';
+           idcustomer = Ds_invoice.idcustomer;
+           invnum     = Ds_invoice.invoicenumber;
+         //invfec     = Ds_invoice.invoicenumber;
+           amtbtax    = Ds_invoice.amtbeforetax;
+           amttax     = Ds_invoice.amttax;
+           amttotal   = Ds_invoice.amttotal;
+           status     = Ds_invoice.status;
+         EndIf;
+         exec sql close c_leefac;
+
+         DoW *in12 = '0';
+           Write R000604;
+           Write R000605;
+           Exfmt R000602C;
+         Enddo;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Validar
+       //------------------------------------------------------------------
+       Begsr srValidar;
+         errid = 'ID00004   ';
+         dly   = 'Y';
+         errmsg= *blanks;
+         *in70 = '0';
+
+         If idcustomer = 0;
+           errmsg = 'Se requiere código de cliente.';
+           linnbr = 6;
+           posnbr = 12;
+         EndIf;
+         If errmsg = *blanks and invfec = 0;
+           errmsg = 'Se requiere fecha.';
+           linnbr = 6;
+           posnbr = 12;
+         EndIf;
+
+         If errmsg <> *blanks;
+           callp Msgdly(errid: dly: errmsg);
+           *in70 = '1';
+         Else;
+           Exsr srGuardar;
+         EndIf;
+       Endsr;
+
+       //------------------------------------------------------------------
+       // Subrutina de Guardar
+       //------------------------------------------------------------------
+       Begsr srGuardar;
+         // Obtener secuencia documento
+         iddoc  = getSequence('0011') + 1;
+         // Obtener secuencia factura
+         invnum = getSequence('0012') + 1;
+         exec sql
+         call PRC006(:iddoc, :idcustomer, :invnum, :amtbtax,
+                     :amttax, :amttotal, 'C',
+                     :usr, :job, :ret, :msg);
+
+         If SQLSTATE = '00000';
+           setSequence('0011': iddoc);
+           setSequence('0012': invnum);
+
+           cont   = 1;
+           Dow cont <= 50;
+             Chain cont R000602;
+             If %Found();
+               exec sql
+               call PRC007(:iddoc, :fldlin, :fldid, :flddes,
+                           :fldpre, :fldcan, :fldsub, :Ds_data.prctax,
+                           :fldimp, :fldtot, :ret, :msg);
+             Else;
+               Leave;
+             EndIf;
+             cont +=1;
+           Enddo;
+
+
+           *in12 = '1';
+           errid = 'ID00003   ';
+           dly   = 'Y';
+           errmsg= *blanks;
+           callp Msgdly(errid: dly: errmsg);
+         EndIf;
+       Endsr;
